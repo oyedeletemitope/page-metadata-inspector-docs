@@ -43,3 +43,9 @@ yarn-error.log*
 .pnpm-debug.log*
 .DS_Store
 next-env.d.ts
+
+# Local npm cache
+/.npm-cache/
+
+# Documentation configuration backups
+/docs.json.bak

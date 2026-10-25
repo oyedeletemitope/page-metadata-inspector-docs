@@ -1,47 +1,58 @@
 ---
 title: Quickstart
-description: Guide a new reader through one useful workflow and show them how to verify it.
+description: Download Page Metadata Inspector and check the metadata returned by a webpage.
 ---
 
-A strong quickstart produces one meaningful result. Replace the placeholders
-below with the shortest supported path for your product.
+Use Page Metadata Inspector to check the metadata a webpage returns in its HTML. You'll clone the Python application, inspect a public page, and read the JSON response.
 
-## Before you begin
+## Prerequisites
 
-List only the requirements needed for this workflow:
+Before getting started, you'll need:
 
-- An account or credential, when required
-- A supported runtime, device, browser, or operating system
-- Permission to create or change the resource used in the example
+- **Python 3.10 or later** to run the application.
+- **Git** to clone the source repository.
+- **An internet connection** to retrieve webpages.
 
-<Steps>
-  <Step title="Install the required tool">
-    Give readers one recommended installation command.
+Check that Python and Git are installed by running:
 
-    ```bash
-    npm install your-package
-    ```
-  </Step>
-  <Step title="Add the minimum configuration">
-    Include only the values needed for the first successful run.
+```bash
+python3 --version
+git --version
+```
 
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Complete the first task">
-    Use a realistic example that produces an observable result.
+Page Metadata Inspector uses Python's standard library, so you don't need to install additional packages or configure API keys.
 
-    ```bash
-    your-cli start
-    ```
-  </Step>
-  <Step title="Verify the result">
-    State exactly what the reader should see and how to recover when it does not appear.
-  </Step>
-</Steps>
+## 1. Download the application
 
-## Choose the next task
+Clone the [Page Metadata Inspector repository](https://github.com/oyedeletemitope/page-metadata-inspector) and change into the downloaded directory. You'll run the commands in the rest of this guide from there.
 
-Link to the guide that naturally follows this result. Avoid ending the reader’s
-journey with a generic list of every feature.
+```bash
+git clone https://github.com/oyedeletemitope/page-metadata-inspector.git
+cd page-metadata-inspector
+```
+
+## 2. Inspect a webpage
+
+To confirm that Page Metadata Inspector works, start with `example.com`. The command retrieves the webpage's HTML and prints any metadata it finds as JSON.
+
+```bash
+python3 inspector.py https://example.com
+```
+
+The response should look like this:
+
+```json
+{
+  "url": "https://example.com",
+  "title": "Example Domain",
+  "description": null,
+  "canonical_url": null,
+  "og_title": null
+}
+```
+
+Here, the inspector finds the page title but no values for the description, canonical URL, or Open Graph title. The output may differ if the website changes. For details about each field, see the [Introduction](/introduction).
+
+## Next steps
+
+The [Inspect and troubleshoot metadata](/guides/inspect-metadata) guide uses a local sample page with populated metadata. You can follow it to compare results before and after changing the page's HTML, then investigate common request errors.

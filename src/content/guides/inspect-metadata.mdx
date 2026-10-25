@@ -1,0 +1,128 @@
+---
+title: Inspect and troubleshoot metadata
+description: Compare metadata changes on a local webpage and diagnose inspection errors.
+---
+
+Page Metadata Inspector can help you check whether a website serves the metadata you expect after an update. In this guide, you'll run a sample webpage locally, change its metadata, and compare the results. The sample files provide known values, so you can follow the exercise without relying on a third-party website.
+
+## Inspect the sample webpage
+
+Start in the `page-metadata-inspector` directory. Copy the original sample into the directory that the local web server will serve:
+
+```bash
+mkdir -p examples/site
+cp examples/before.html examples/site/index.html
+```
+
+Use Python's built-in HTTP server to make that HTML page available at `http://127.0.0.1:8765/`:
+
+```bash
+python3 -m http.server 8765 --bind 127.0.0.1 --directory examples/site
+```
+
+Keep the server running while you open a second terminal in `page-metadata-inspector`. Inspect the local page, save the JSON to `before.json`, and display the file:
+
+```bash
+python3 inspector.py http://127.0.0.1:8765/ > before.json
+cat before.json
+```
+
+The response should match the metadata in `examples/before.html`:
+
+```json
+{
+  "url": "http://127.0.0.1:8765/",
+  "title": "Acme API Docs",
+  "description": "Learn how to use the Acme API.",
+  "canonical_url": "http://127.0.0.1:8765/",
+  "og_title": "Acme API Docs"
+}
+```
+
+The inspector reports the final response URL and reads the other four values from the sample HTML. Every field has a value here, unlike the `example.com` result in the Quickstart.
+
+## Compare metadata before and after an update
+
+Suppose you've changed a documentation page's title and description. The repository includes an updated HTML sample that lets you reproduce that change without editing the tags manually.
+
+While the web server is still running, replace the served page with `examples/after.html`:
+
+```bash
+cp examples/after.html examples/site/index.html
+```
+
+Inspect the same address again and save its new metadata to `after.json`:
+
+```bash
+python3 inspector.py http://127.0.0.1:8765/ > after.json
+cat after.json
+```
+
+This time, the response should contain the updated title, description, and Open Graph title:
+
+```json
+{
+  "url": "http://127.0.0.1:8765/",
+  "title": "Acme API Developer Guide",
+  "description": "Follow the Acme API setup and integration guides.",
+  "canonical_url": "http://127.0.0.1:8765/",
+  "og_title": "Acme API Developer Guide"
+}
+```
+
+You can inspect the differences without comparing the files manually. On macOS or Linux, run:
+
+```bash
+diff -u before.json after.json
+```
+
+The relevant lines should look like this:
+
+```diff
+-  "title": "Acme API Docs",
+-  "description": "Learn how to use the Acme API.",
++  "title": "Acme API Developer Guide",
++  "description": "Follow the Acme API setup and integration guides.",
+-  "og_title": "Acme API Docs"
++  "og_title": "Acme API Developer Guide"
+```
+
+The `-` lines represent the earlier metadata, and the `+` lines show the replacements. The page URL and canonical URL remain unchanged because the sample's address is the same. `diff` returns exit status `1` when it finds differences, which is expected in this exercise.
+
+Once you've checked the results, stop the web server with `Ctrl+C` in its terminal. You can use the same before-and-after approach to check metadata changes on your own website.
+
+## Inspect a public webpage
+
+To inspect a live page instead of the local sample, pass its full URL to the inspector. Use a public page you're allowed to retrieve:
+
+```bash
+python3 inspector.py https://example.com
+```
+
+The inspector reads the HTML the server sends back but does not run JavaScript. If a website inserts metadata after the browser loads, those values might not appear in the output.
+
+By default, the tool passes a 10-second timeout to the HTTP request. You can give a slow server more time with `--timeout`:
+
+```bash
+python3 inspector.py https://example.com --timeout 20
+```
+
+The option accepts a positive number of seconds. A longer timeout won't fix a missing page or a server that rejects the request.
+
+## Troubleshooting
+
+If the request fails, the CLI writes an error to standard error and exits with a nonzero status. Use the message to identify what to check next.
+
+| Error or symptom | What to check |
+| --- | --- |
+| `Provide a complete http:// or https:// URL` | Include the scheme in the URL, such as `https://example.com`. |
+| `HTTP Error 403: Forbidden` | The site refused the request. Check its access policy before trying another page. |
+| `HTTP Error 404: Not Found` | Confirm the path exists. For the local exercise, check that `examples/site/index.html` is present. |
+| `Expected an HTML page; received application/json` | The URL returned JSON. Point the inspector at an HTML webpage. |
+| `--timeout must be greater than zero` | Pass a positive value, such as `--timeout 20`. |
+| `Connection refused` | Check that the sample server is running on `127.0.0.1:8765`. |
+| The inspector returns an unexpected page title | You may be reaching a different server. Check the URL and the terminal running the local server. On macOS, `lsof -nP -iTCP:8765 -sTCP:LISTEN` shows which process is listening on that port. |
+| `timed out` | Check whether the website is reachable, then try a longer timeout if needed. |
+| A metadata field returns `null` | Check whether the corresponding tag exists in the HTML returned by the server. |
+
+The wording of network errors can differ across systems. If the metadata appears wrong even though the request succeeds, inspect the page's server-delivered HTML. The `url` field is the final address after redirects, while `canonical_url` comes from the page's canonical link, so the two values may differ.

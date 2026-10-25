@@ -159,16 +159,21 @@ const brandPresets: Record<BrandPresetKey, BrandConfig> = {
 
 const brandPreset: BrandPresetKey = 'primary'
 
+
 export const siteConfig: SiteConfig = {
-  name: 'Research Agent Docs',
+  name: 'Page Metadata Inspector',
   description:
-    'Documentation for Research Agent Docs.',
-  repoUrl: '',
+    'Documentation for the Page Metadata Inspector Python CLI.',
+  repoUrl: 'https://github.com/oyedeletemitope/page-metadata-inspector',
   links: [
     { label: 'Get started', href: '/quickstart' },
-    { label: 'Changelog', href: '/changelog' },
+    {
+      label: 'GitHub',
+      href: 'https://github.com/oyedeletemitope/page-metadata-inspector',
+    },
   ],
   brand: brandPresets[brandPreset],
   brandPreset,
   brandPresets,
 }
+
