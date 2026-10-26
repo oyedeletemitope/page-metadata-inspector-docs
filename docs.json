@@ -8,5 +8,5 @@
     {"group": "Getting started", "pages": ["introduction", "quickstart"]},
     {"group": "Guides", "pages": ["guides/inspect-metadata"]}
   ]}],
-  "ai": {"chat": false}
+  "ai": {"chat": true}
 }
